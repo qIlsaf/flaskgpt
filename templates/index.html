@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChatGPT Ilsaf App</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin:
+            font-size: 20px;
+        }
+        .chat-container {
+            margin-bottom: 20px;
+        }
+        .messages {
+            border: 1px solid #ccc;
+            padding: 10px;
+            height: 200px;
+            overflow-y: auto;
+            margin-bottom: 10px;
+            font-size: 20px;
+        }
+        .user-input {
+            width: 80%;
+            padding: 10px;
+            font-size: 18px;
+        }
+        .button {
+            width: 15%;
+            padding: 10px;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+
+<h1>ChatGPT with Ilsaf</h1>
+
+<div class="chat-container">
+    <h2>Диалог</h2>
+    <div class="messages" id="messages1"></div>
+    <input type="text" class="user-input" id="input1" placeholder="Напишите ваше сообщение...">
+    <button class="button" onclick="sendMessage(1)">Отправить</button>
+</div>
+
+
+<script>
+function appendMessage(chatId, message, isUser) {
+    const messagesDiv = document.getElementById(`messages${chatId}`);
+    const messageElement = document.createElement('div');
+    messageElement.textContent = `${isUser ? 'Вы: ' : 'Ilsaf_GPT: '} ${message}`;
+    messagesDiv.appendChild(messageElement);
+    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+}
+
+function sendMessage(chatId) {
+    const inputField = document.getElementById(`input${chatId}`);
+    const userInput = inputField.value;
+
+    if (!userInput) return;
+
+    appendMessage(chatId, userInput, true);
+    inputField.value = '';
+
+    fetch('/ask', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: new URLSearchParams({ user_input: userInput })
+    })
+    .then(response => response.json())
+    .then(data => {
+        appendMessage(chatId, data.response, false);
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        appendMessage(chatId, 'Error getting response. Please try again.', false);
+    });
+}
+</script>
+
+</body>
+</html>
